@@ -1,0 +1,88 @@
+Date : 2023-12-07 22:55:26
+Directory : d:\桌面\works_pro\app
+Total : 44 files,  212 codes, -29 comments, -5 blanks, all 178 lines
+
+Languages
++----------+------------+------------+------------+------------+------------+
+| language | files      | code       | comment    | blank      | total      |
++----------+------------+------------+------------+------------+------------+
+| PHP      |         44 |        212 |        -29 |         -5 |        178 |
++----------+------------+------------+------------+------------+------------+
+
+Directories
++------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                       | files      | code       | comment    | blank      | total      |
++------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                          |         44 |        212 |        -29 |         -5 |        178 |
+| admin                                                      |          7 |         69 |          2 |          3 |         74 |
+| admin\controller                                           |          4 |         66 |          2 |          3 |         71 |
+| admin\route                                                |          1 |          1 |          0 |          0 |          1 |
+| admin\view                                                 |          2 |          2 |          0 |          0 |          2 |
+| admin\view\classes                                         |          1 |          3 |          0 |          0 |          3 |
+| admin\view\stu                                             |          1 |         -1 |          0 |          0 |         -1 |
+| common                                                     |         33 |        119 |        -32 |        -11 |         76 |
+| common\business                                            |         10 |        199 |         10 |          9 |        218 |
+| common\business\admin                                      |          5 |        164 |          7 |         13 |        184 |
+| common\business\common                                     |          1 |          5 |          3 |          4 |         12 |
+| common\business\home                                       |          4 |         30 |          0 |         -8 |         22 |
+| common\model                                               |         19 |        -70 |        -24 |        -18 |       -112 |
+| common\model (Files)                                       |          9 |        344 |        162 |         91 |        597 |
+| common\model\admin                                         |          5 |       -194 |        -88 |        -52 |       -334 |
+| common\model\home                                          |          5 |       -220 |        -98 |        -57 |       -375 |
+| common\validate                                            |          4 |        -10 |        -18 |         -2 |        -30 |
+| common\validate\admin                                      |          4 |        -10 |        -18 |         -2 |        -30 |
+| home                                                       |          4 |         24 |          1 |          3 |         28 |
+| home\controller                                            |          3 |         15 |          0 |          2 |         17 |
+| home\middleware                                            |          1 |          9 |          1 |          1 |         11 |
++------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++------------------------------------------------------------+----------+------------+------------+------------+------------+
+| filename                                                   | language | code       | comment    | blank      | total      |
++------------------------------------------------------------+----------+------------+------------+------------+------------+
+| d:\桌面\works_pro\app\admin\controller\Classes.php           | PHP      |         29 |          1 |          1 |         31 |
+| d:\桌面\works_pro\app\admin\controller\Home.php              | PHP      |          0 |          0 |          3 |          3 |
+| d:\桌面\works_pro\app\admin\controller\Score.php             | PHP      |          1 |          0 |          1 |          2 |
+| d:\桌面\works_pro\app\admin\controller\Stu.php               | PHP      |         36 |          1 |         -2 |         35 |
+| d:\桌面\works_pro\app\admin\route\ScoreRoute.php             | PHP      |          1 |          0 |          0 |          1 |
+| d:\桌面\works_pro\app\admin\view\classes\information.php     | PHP      |          3 |          0 |          0 |          3 |
+| d:\桌面\works_pro\app\admin\view\stu\index.php               | PHP      |         -1 |          0 |          0 |         -1 |
+| d:\桌面\works_pro\app\common\business\admin\Account.php      | PHP      |          3 |          0 |          2 |          5 |
+| d:\桌面\works_pro\app\common\business\admin\Classes.php      | PHP      |          4 |         -1 |         -2 |          1 |
+| d:\桌面\works_pro\app\common\business\admin\Score.php        | PHP      |          8 |          0 |          1 |          9 |
+| d:\桌面\works_pro\app\common\business\admin\Stu.php          | PHP      |        140 |          8 |         11 |        159 |
+| d:\桌面\works_pro\app\common\business\admin\Work.php         | PHP      |          9 |          0 |          1 |         10 |
+| d:\桌面\works_pro\app\common\business\common\Common.php      | PHP      |          5 |          3 |          4 |         12 |
+| d:\桌面\works_pro\app\common\business\home\Account.php       | PHP      |         10 |          0 |          1 |         11 |
+| d:\桌面\works_pro\app\common\business\home\DisWork.php       | PHP      |          5 |          0 |         -4 |          1 |
+| d:\桌面\works_pro\app\common\business\home\UpWork.php        | PHP      |        113 |         25 |         31 |        169 |
+| d:\桌面\works_pro\app\common\business\home\Work.php          | PHP      |        -98 |        -25 |        -36 |       -159 |
+| d:\桌面\works_pro\app\common\model\Account.php               | PHP      |        -17 |         -6 |         -7 |        -30 |
+| d:\桌面\works_pro\app\common\model\Admin.php                 | PHP      |         25 |         12 |          9 |         46 |
+| d:\桌面\works_pro\app\common\model\Classes.php               | PHP      |         27 |         15 |         11 |         53 |
+| d:\桌面\works_pro\app\common\model\IsWork.php                | PHP      |         57 |         26 |         13 |         96 |
+| d:\桌面\works_pro\app\common\model\Score.php                 | PHP      |         70 |         27 |         14 |        111 |
+| d:\桌面\works_pro\app\common\model\Stu.php                   | PHP      |         62 |         28 |         14 |        104 |
+| d:\桌面\works_pro\app\common\model\StuIp.php                 | PHP      |         11 |          3 |          6 |         20 |
+| d:\桌面\works_pro\app\common\model\Work.php                  | PHP      |         49 |         26 |         14 |         89 |
+| d:\桌面\works_pro\app\common\model\Works.php                 | PHP      |         60 |         31 |         17 |        108 |
+| d:\桌面\works_pro\app\common\model\admin\Account.php         | PHP      |        -22 |         -9 |         -8 |        -39 |
+| d:\桌面\works_pro\app\common\model\admin\Classes.php         | PHP      |        -41 |        -22 |        -11 |        -74 |
+| d:\桌面\works_pro\app\common\model\admin\Score.php           | PHP      |        -39 |        -22 |        -12 |        -73 |
+| d:\桌面\works_pro\app\common\model\admin\Stu.php             | PHP      |        -54 |        -19 |        -12 |        -85 |
+| d:\桌面\works_pro\app\common\model\admin\Work.php            | PHP      |        -38 |        -16 |         -9 |        -63 |
+| d:\桌面\works_pro\app\common\model\home\Account.php          | PHP      |        -24 |         -9 |         -8 |        -41 |
+| d:\桌面\works_pro\app\common\model\home\Classes.php          | PHP      |        -17 |         -6 |         -4 |        -27 |
+| d:\桌面\works_pro\app\common\model\home\Score.php            | PHP      |        -73 |        -35 |        -18 |       -126 |
+| d:\桌面\works_pro\app\common\model\home\Stu.php              | PHP      |        -18 |         -6 |         -7 |        -31 |
+| d:\桌面\works_pro\app\common\model\home\Work.php             | PHP      |        -88 |        -42 |        -20 |       -150 |
+| d:\桌面\works_pro\app\common\validate\admin\Admin.php        | PHP      |         35 |         18 |          7 |         60 |
+| d:\桌面\works_pro\app\common\validate\admin\AdminDoLogin.php | PHP      |        -20 |        -18 |         -5 |        -43 |
+| d:\桌面\works_pro\app\common\validate\admin\AdminEdit.php    | PHP      |        -26 |        -18 |         -5 |        -49 |
+| d:\桌面\works_pro\app\common\validate\admin\Classes.php      | PHP      |          1 |          0 |          1 |          2 |
+| d:\桌面\works_pro\app\home\controller\DisWork.php            | PHP      |          3 |          0 |          1 |          4 |
+| d:\桌面\works_pro\app\home\controller\Home.php               | PHP      |          3 |          0 |          0 |          3 |
+| d:\桌面\works_pro\app\home\controller\UpWork.php             | PHP      |          9 |          0 |          1 |         10 |
+| d:\桌面\works_pro\app\home\middleware\Auth.php               | PHP      |          9 |          1 |          1 |         11 |
+| Total                                                      |          |        212 |        -29 |         -5 |        178 |
++------------------------------------------------------------+----------+------------+------------+------------+------------+

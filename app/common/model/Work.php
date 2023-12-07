@@ -20,11 +20,29 @@ class Work extends Model
     }
 
     /**
+     * 获取当前作业
+     */
+    public function findWorkToStu($class_id, $work_id)
+    {
+        $res = $this->where(['class_id' => $class_id, 'work_id' => $work_id, 'status' => 0])->order('work_id', 'desc')->findOrEmpty();
+        return $res;
+    }
+
+    /**
      * 获取作业表的信息
      */
     public function getWorkList($class_id)
     {
         $res = $this->where('class_id', $class_id)->select()->toArray();
+        return $res;
+    }
+
+    /**
+     * 获取作业信息到学生，状态不为0不展示
+     */
+    public function getWorkListToStu($class_id)
+    {
+        $res = $this->where(['class_id' => $class_id, 'status' => 0])->order('work_id', 'desc')->select()->toArray();
         return $res;
     }
 

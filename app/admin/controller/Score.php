@@ -6,7 +6,7 @@ use think\facade\Request;
 use think\facade\View;
 
 
-use app\common\model\admin\Classes as ClassesModel;
+use app\common\model\Classes as ClassesModel;
 use app\common\business\admin\Score as ScoreBusiness;
 
 
@@ -34,16 +34,17 @@ class Score extends Base
         $data['admin'] = $this->uname;
         $data['class']['title'] = '成绩管理';
 
-        $data['work'] = $this->scoreBusiness->getStuScoreList($class_id)['work'];
-        $data['work_count'] = $this->scoreBusiness->getStuScoreList($class_id)['work_count'];
-        $data['stu'] = $this->scoreBusiness->getStuScoreList($class_id)['stu'];
+        $res = $this->scoreBusiness->getStuScoreList($class_id);
+        $data['work'] = $res['work'];
+        $data['work_count'] = $res['work_count'];
+        $data['stu'] = $res['stu'];
 
         View::engine()->layout('layout');
         return View::fetch('score/index', $data);
     }
 
     // 成绩导出
-    public function get_zip()
+    public function getZip()
     {
         $class_id = (int)Request::get('class_id', '');
         $this->scoreBusiness->getZip($class_id);

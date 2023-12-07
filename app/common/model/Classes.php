@@ -17,6 +17,7 @@ class Classes extends Model
         return $this->where('class_id', $class_id)->findOrEmpty();
     }
 
+
     /**
      * 查找班级列表
      */

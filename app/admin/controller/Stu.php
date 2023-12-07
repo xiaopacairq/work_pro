@@ -5,13 +5,13 @@ namespace app\admin\controller;
 use think\facade\Request;
 use think\facade\View;
 
-use think\exception\ValidateException;
-
-use app\common\model\Classes as ClassesModel;
-use app\common\model\Stu as StuModel;
 use app\common\business\admin\Stu as StuBusiness;
 use app\common\validate\admin\Stu as StuValidate;
 
+use app\common\model\Classes as ClassesModel;
+use app\common\model\Stu as StuModel;
+
+use think\exception\ValidateException;
 
 /**
  * 后台学生管理
@@ -38,7 +38,7 @@ class Stu extends Base
     {
         $class_id = (int)Request::get('class_id', '');
 
-        $data['class'] = $this->classesModel->findClasses($class_id)->toArray();
+        $data['class'] = $this->classesModel->findClasses($class_id);
         $data['admin'] = $this->uname;
         $data['class']['title'] = '学生管理';
 
@@ -56,8 +56,6 @@ class Stu extends Base
 
         $data['stu'] = $this->stuModel->getStuList($class_id, $where);
         $data['page'] = $data['stu']->render();
-
-
 
         // 更新学生数据表与excel同步
         $this->stuBusiness->createExcel($class_id);

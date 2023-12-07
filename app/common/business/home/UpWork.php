@@ -2,12 +2,11 @@
 
 namespace app\common\business\home;
 
-use think\facade\Filesystem;
-
-use app\common\model\home\Work as WorkModel;
-use app\common\model\home\Stu as StuModel;
-use app\common\model\home\Score as ScoreModel;
-
+use app\common\model\Work as WorkModel;
+use app\common\model\Stu as StuModel;
+use app\common\model\Score as ScoreModel;
+use app\common\model\IsWork as IsWorkModel;
+use app\common\model\Works as WorksModel;
 use file\File;
 
 
@@ -16,13 +15,14 @@ use file\File;
 /**
  * 执行核心逻辑
  */
-class Work
+class UpWork
 {
     private $workModel = null;
     private $stuModel = null;
     private $scoreModel = null;
     private $file = null;
-
+    private $isWorkModel = null;
+    private $worksModel = null;
 
     public function __construct()
     {
@@ -31,6 +31,8 @@ class Work
         $this->workModel = new WorkModel();
         $this->scoreModel = new ScoreModel();
         $this->stuModel = new StuModel();
+        $this->isWorkModel = new IsWorkModel();
+        $this->worksModel = new WorksModel();
     }
 
     /**
@@ -38,10 +40,10 @@ class Work
      */
     public function getWorkList($class, $stu)
     {
-        $data['work'] = $this->workModel->getWorkList($class['class_id']);
+        $data['work'] = $this->workModel->getWorkListToStu($class['class_id']);
 
         foreach ($data['work'] as $k => $v) {
-            $res = $this->workModel->getIsWorkStu($class['class_id'], $stu['stu_no'], $v['work_id']);
+            $res = $this->isWorkModel->getIsWorkStu($class['class_id'], $stu['stu_no'], $v['work_id']);
             if (!empty($res)) { //可以查到对应的数据，学生已确认
 
                 if ($res['is_true'] == 1) { //学生已提交
@@ -75,7 +77,7 @@ class Work
         $data['stu_no'] = $stu_no;
         $data['work_id'] = $work_id;
 
-        $count = $this->workModel->getWorksCount($class_id, $stu_no, $work_id);  //当前文件个数
+        $count = $this->worksModel->getWorksCount($class_id, $stu_no, $work_id);  //当前文件个数
         if ($count > 15) {
             return config('status.work_file_ext_err');
         }
@@ -89,15 +91,25 @@ class Work
             return config('status.work_file_ext_err');
         }
 
-        $res = $this->workModel->findWorksFilename($data['filename'], $class_id, $stu_no, $work_id);
+        $res = $this->worksModel->findWorksFilename($data['filename'], $class_id, $stu_no, $work_id);
 
-        if (!empty($res)) {
+        if (!$res->isEmpty()) {
             // 修改操作
-            $this->workModel->editWorksStartTime($data['filename'], $class_id, $stu_no, $work_id);
+            $this->worksModel->editWorksStartTime($data['filename'], $class_id, $stu_no, $work_id);
             $errCode = $this->putFile($file, $class_id, $work_id, $stu_no);
+            if ($errCode != config('status.success')) {
+                if ($errCode == config('status.error')) {
+                    return config('status.error');
+                }
+            }
         } else {  //添加操作
-            $this->workModel->addWorks($data);
+            $this->worksModel->addWorks($data);
             $errCode = $this->putFile($file, $class_id, $work_id, $stu_no);
+            if ($errCode != config('status.success')) {
+                if ($errCode == config('status.error')) {
+                    return config('status.error');
+                }
+            }
         }
         return config('status.success');
     }
@@ -120,9 +132,9 @@ class Work
      */
     public function delfile($id)
     {
-        $res = $this->workModel->findWorks($id);
+        $res = $this->worksModel->findWorks($id);
 
-        $this->workModel->delWorks($id);
+        $this->worksModel->delWorksById($id);
 
         $this->clearFile($res['work_url']);
 
@@ -145,8 +157,6 @@ class Work
         }
         return config('status.success');
     }
-
-
 
     /**
      * 清除文件

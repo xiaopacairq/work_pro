@@ -21,8 +21,7 @@
             </div>
             <!-- 添加、清空数据框 -->
             <div class="layui-inline">
-                <button
-                    class="layui-btn layui-btn-primary layui-border-black <?= count($stu) == 0 ? "layui-btn-disabled" : "" ?>"
+                <button class="layui-btn layui-btn-primary layui-border-black "
                     onclick="add('{$class.class_id}')">添加</button>
                 <button
                     class="layui-btn layui-btn-primary layui-border-black <?= count($stu) != 0 ? "layui-btn-disabled" : "" ?>"

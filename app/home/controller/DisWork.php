@@ -6,9 +6,11 @@ use think\facade\Db;
 use think\facade\Request;
 use think\facade\View;
 
-use app\common\model\home\Classes as ClassesModel;
 use app\common\business\home\DisWork as DisWorkBusiness;
-use app\common\model\home\Score as ScoreModel;
+
+use app\common\model\Classes as ClassesModel;
+use app\common\model\Score as ScoreModel;
+use app\common\model\Stu as StuModel;
 
 /**
  * 作业提交页面
@@ -17,6 +19,7 @@ class DisWork extends Base
 {
     private $classesModel = null;
     private $disWorkBusiness = null;
+    private $stuModel = null;
     private $scoreModel = null;
 
     public function __construct()
@@ -24,6 +27,7 @@ class DisWork extends Base
         // 核心逻辑
         $this->classesModel = new ClassesModel();
         $this->disWorkBusiness = new DisWorkBusiness();
+        $this->stuModel = new StuModel();
         $this->scoreModel = new ScoreModel();
         $this->initialize();
     }
@@ -32,8 +36,8 @@ class DisWork extends Base
     {
         $data['class_id'] = $this->class_id;
         $data['stu_no'] = $this->stu_no;
-        $data['class'] = $this->classesModel->findClass($data['class_id']);
-        $data['stu'] = $this->classesModel->findStu($data['class_id'], $data['stu_no']);
+        $data['class'] = $this->classesModel->findClasses($data['class_id']);
+        $data['stu'] = $this->stuModel->findStu($data['class_id'], $data['stu_no']);
 
         $data['class']['title'] = '作业展示';
 
@@ -48,8 +52,8 @@ class DisWork extends Base
     {
         $data['class_id'] = $this->class_id;
         $data['stu_no'] = $this->stu_no;
-        $data['class'] = $this->classesModel->findClass($data['class_id']);
-        $data['stu'] = $this->classesModel->findStu($data['class_id'], $data['stu_no']);
+        $data['class'] = $this->classesModel->findClasses($data['class_id']);
+        $data['stu'] = $this->stuModel->findStu($data['class_id'], $data['stu_no']);
         $data['work_id'] = (int)Request::get('work_id', '');
 
         $data['works'] = $this->disWorkBusiness->getWorkDisplayList($data['class'], $data['work_id']);

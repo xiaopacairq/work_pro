@@ -23,7 +23,7 @@ class Admin extends Model
      */
     public function findAdmin($id)
     {
-        return $this->where('id', $id)->find();
+        return $this->where('id', $id)->findOrEmpty();
     }
 
     /**

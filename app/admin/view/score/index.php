@@ -52,7 +52,7 @@
         layer.confirm('确定要下载吗？', {
             btn: ['确定', '取消'] //按钮
         }, function() {
-            window.location.href = '/houtai/score/get_zip?class_id=' + class_id;
+            window.location.href = '/teacher/class_score_get_zip?class_id=' + class_id;
 
             setTimeout(function() {
                 window.location.reload();

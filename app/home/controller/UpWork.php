@@ -5,9 +5,13 @@ namespace app\home\controller;
 use think\facade\Request;
 use think\facade\View;
 
-use app\common\model\home\Classes as ClassesModel;
-use app\common\business\home\Work as WorkBusiness;
-use app\common\model\home\Work as WorkModel;
+
+use app\common\model\Classes as ClassesModel;
+use app\common\model\Stu as StuModel;
+use app\common\business\home\UpWork as UpWorkBusiness;
+use app\common\model\Work as WorkModel;
+use app\common\model\IsWork as IsWorkModel;
+use app\common\model\Works as WorksModel;
 
 
 /**
@@ -18,15 +22,21 @@ use app\common\model\home\Work as WorkModel;
 class UpWork extends Base
 {
     private $classesModel = null;
-    private $workBusiness = null;
+    private $stuModel = null;
+    private $upWorkBusiness = null;
     private $workModel = null;
+    private $isWorkModel = null;
+    private $worksModel = null;
 
     public function __construct()
     {
         // 核心逻辑
         $this->classesModel = new ClassesModel();
-        $this->workBusiness = new WorkBusiness();
+        $this->stuModel = new StuModel();
+        $this->upWorkBusiness = new UpWorkBusiness();
         $this->workModel = new WorkModel();
+        $this->isWorkModel = new IsWorkModel();
+        $this->worksModel = new WorksModel();
         $this->initialize();
     }
 
@@ -34,12 +44,12 @@ class UpWork extends Base
     {
         $data['class_id'] = $this->class_id;
         $data['stu_no'] = $this->stu_no;
-        $data['class'] = $this->classesModel->findClass($data['class_id']);
-        $data['stu'] = $this->classesModel->findStu($data['class_id'], $data['stu_no']);
+        $data['class'] = $this->classesModel->findClasses($data['class_id']);
+        $data['stu'] = $this->stuModel->findStu($data['class_id'], $data['stu_no']);
         $data['recent_date'] = date("Y-m-d H:i", time());
         $data['class']['title'] = '作业上传';
 
-        $data['work'] = $this->workBusiness->getWorkList($data['class'], $data['stu']);
+        $data['work'] = $this->upWorkBusiness->getWorkList($data['class'], $data['stu']);
 
 
         View::engine()->layout('layout');
@@ -52,11 +62,11 @@ class UpWork extends Base
 
         $data['class_id'] = $this->class_id;
         $data['stu_no'] = $this->stu_no;
-        $data['class'] = $this->classesModel->findClass($data['class_id']);
-        $data['stu'] = $this->classesModel->findStu($data['class_id'], $data['stu_no']);
+        $data['class'] = $this->classesModel->findClasses($data['class_id']);
+        $data['stu'] = $this->stuModel->findStu($data['class_id'], $data['stu_no']);
         $data['work_id'] = (int)Request::get('work_id', '');  //当前作业号
         $data['recent_date'] = date("Y-m-d H:i", time());  //当前的时间，与作业时间对比
-        $data['work'] = $this->workModel->findWork($data['class_id'], $data['work_id']);  //获取当前作业的信息,包括截止时间和作业的状态，确保作业在截止时间结束后或状态关闭时，是无法上传作业的！
+        $data['work'] = $this->workModel->findWorkToStu($data['class_id'], $data['work_id']);  //获取当前作业的信息,包括截止时间和作业的状态，确保作业在截止时间结束后或状态关闭时，是无法上传作业的！
 
         if ($data['work']->isEmpty()) {
             return $this->show(
@@ -66,15 +76,15 @@ class UpWork extends Base
             );
         }
 
-        $data['is_work'] = $this->workModel->getIsWorkStu($data['class_id'], $data['stu_no'], $data['work_id']);
-        if (empty($data['is_work'])) {
+        $data['is_work'] = $this->isWorkModel->getIsWorkStu($data['class_id'], $data['stu_no'], $data['work_id']);
+        if ($data['is_work']->isEmpty()) {
             //如果没有查询到对应的is_work的数据，则添加一条数据
-            $this->workModel->addIsWork($data['class_id'], $data['stu_no'], $data['work_id']);
+            $this->isWorkModel->addIsWork($data['class_id'], $data['stu_no'], $data['work_id']);
         }
-        $data['is_work'] = $this->workModel->getIsWorkStu($data['class_id'], $data['stu_no'], $data['work_id']);
+        $data['is_work'] = $this->isWorkModel->getIsWorkStu($data['class_id'], $data['stu_no'], $data['work_id']);
 
 
-        $data['works'] = $this->workModel->getWorkFileList($data['class_id'], $data['stu_no'], $data['work_id']);
+        $data['works'] = $this->worksModel->getWorkFileList($data['class_id'], $data['stu_no'], $data['work_id']);
 
 
         return View::fetch('up_work/details', $data);
@@ -101,8 +111,8 @@ class UpWork extends Base
 
         // 如果确认提交，要确保提交文件中至少有一个index文件
         if ($data['is_true'] == 1) {
-            $res = $this->workModel->findIndex($data['class_id'], $data['stu_no'], $data['work_id']);
-            if (empty($res)) {
+            $res = $this->worksModel->findIndex($data['class_id'], $data['stu_no'], $data['work_id']);
+            if ($res->isEmpty()) {
                 return $this->show(
                     config("status.error"),
                     config("message.error"),
@@ -113,7 +123,7 @@ class UpWork extends Base
 
 
         // 执行修改操作
-        $this->workModel->editIsWorkStatus($data['class_id'], $data['stu_no'], $data['work_id'], $data);
+        $this->isWorkModel->editIsWorkStatus($data['class_id'], $data['stu_no'], $data['work_id'], $data);
         if ($data['is_true'] == 0) {
             return $this->show(
                 config("status.success"),
@@ -138,7 +148,7 @@ class UpWork extends Base
 
         $file = Request::file('file');
 
-        $errCode = $this->workBusiness->upfile($file, $data['class_id'], $data['stu_no'], $data['work_id']);
+        $errCode = $this->upWorkBusiness->upfile($file, $data['class_id'], $data['stu_no'], $data['work_id']);
         if ($errCode != config('status.success')) {
             if ($errCode == config('status.work_file_max_err')) {
                 return $this->show(
@@ -176,7 +186,7 @@ class UpWork extends Base
 
         $id = (int)Request::post('id', '');
 
-        $errCode = $this->workBusiness->delfile($id);
+        $errCode = $this->upWorkBusiness->delfile($id);
 
         if ($errCode != config('status.success')) {
             return $this->show(

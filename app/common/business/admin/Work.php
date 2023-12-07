@@ -76,7 +76,7 @@ class Work
                     $data['works'][$k]['work_id'] = $work_id;
                     $data['works'][$k]['save_time'] = $res['last_time']; //提交作业时间
 
-                    $score_sum = $this->scoreModel->getStuScore($v['stu_no'], $work_id);  //获取的总分
+                    $score_sum = $this->scoreModel->getStuScore($class_id, $v['stu_no'], $work_id);  //获取的总分
                     $data['works'][$k]['all_score'] = number_format($score_sum / $stu_count, 2);
                 } else { //学生点击作业，但未上传
                     $data['works'][$k]['is_true'] = 0;

@@ -5,10 +5,11 @@ namespace app\admin\controller;
 use think\facade\Request;
 use think\facade\View;
 
-use think\exception\ValidateException;
+use app\common\validate\admin\Classes as ClassesValidate;
 
 use app\common\model\Classes as ClassesModel;
-use app\common\validate\admin\Classes as ClassesValidate;
+
+use think\exception\ValidateException;
 
 
 /**
@@ -64,7 +65,7 @@ class Home extends Base
             $data['token'] = Request::buildToken('__token__', 'sha1');
             $data['admin'] = $this->uname;
             $class_id = (int)Request::get('class_id');
-            $data['class'] = $this->classesModel->findClasses($class_id)->toArray();
+            $data['class'] = $this->classesModel->findClasses($class_id);
             $data['class']['title'] = '班级配置';  //动态设置网站名称
 
             View::engine()->layout('layout');

@@ -4,7 +4,6 @@ namespace app\common\business\admin;
 
 use file\Zip1;
 use file\File;
-use PhpOffice\PhpSpreadsheet\IOFactory; //用于载入已有的xlsx文件
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx; //保存xlsx文件
 
@@ -44,7 +43,7 @@ class Score
      */
     public function getZip($class_id)
     {
-        $this->zip1->zip($class_id, 'stu_data');
+        $this->zip1->zip($class_id, 'stu_score');
     }
 
     /**

@@ -2,7 +2,9 @@
 
 namespace app\common\business\home;
 
-use app\common\model\home\Account as adminModel;
+use app\common\model\Stu as StuModel;
+use app\common\model\StuIp as StuIpModel;
+use app\common\model\Classes as ClassesModel;
 
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
@@ -12,13 +14,17 @@ use Firebase\JWT\Key;
  */
 class Account
 {
-    private $adminModel = null;
+    private $stuModel = null;
+    private $stuIpModel = null;
+    private $classesModel = null;
     private $expTime = 60 * 60;
 
     public function __construct()
     {
         // 核心逻辑
-        $this->adminModel = new adminModel();
+        $this->stuModel = new StuModel();
+        $this->stuIpModel = new StuIpModel();
+        $this->classesModel = new ClassesModel();
     }
 
     /**
@@ -27,7 +33,12 @@ class Account
     public function check($data)
     {
         // 查找用户
-        $user = $this->adminModel->findByStu($data['class_id'], $data['stu_no']);
+        $class = $this->classesModel->findClasses($data['class_id']);
+        if ($class['status'] == 1) {
+            return config("status.error");
+        }
+
+        $user = $this->stuModel->findStu($data['class_id'], $data['stu_no']);
         if ($user->isEmpty()) {
             return config("status.error");
         }
@@ -36,7 +47,7 @@ class Account
             return config("status.error");
         }
 
-        $this->adminModel->updateStuTimeOrCount($user['id']);
+        $this->stuModel->updateStuTimeOrCount($user['id']);
 
 
         $login_token = $this->createToken($user['id'], $user['class_id'], $user['stu_no']);
@@ -99,7 +110,7 @@ class Account
             'token' => $login_token,
         ];
 
-        $this->adminModel->addStuIp($data);
+        $this->stuIpModel->addStuIp($data);
     }
 
     /**

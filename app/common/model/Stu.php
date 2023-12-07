@@ -37,7 +37,7 @@ class Stu extends Model
     public function getStuListByClassId($class_id)
     {
         //获取所有的学生
-        $res = $this->field('stu_no,stu_name')->where('class_id', $class_id)->order('stu_no', 'asc')->select()->toArray();
+        $res = $this->where('class_id', $class_id)->order('stu_no', 'asc')->select()->toArray();
         return $res;
     }
 
@@ -81,5 +81,23 @@ class Stu extends Model
         } else {
             $this->where(['stu_no' => $stu_no, 'class_id' => $class_id])->delete();
         }
+    }
+
+    /**
+     * 更新登录时间和次数
+     */
+    public function updateStuTimeOrCount($id)
+    {
+        $this->where('id', $id)->update(['last_time' => date("Y-m-d H:i:s", time())]);
+        $this->where('id', $id)->inc('count', 1)->update();
+    }
+
+    /**
+     * 获取学生的信息，
+     */
+    public function getStuCount($class_id)
+    {
+        $res = $this->where('class_id', $class_id)->count();
+        return $res;
     }
 }

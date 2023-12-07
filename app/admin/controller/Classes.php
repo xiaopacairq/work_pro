@@ -187,8 +187,6 @@ class Classes extends Base
     public function edit()
     {
         if (Request::isPost()) {
-
-
             $class_id = (int)Request::post('class_id', '');
 
             // 获取客户端数据
