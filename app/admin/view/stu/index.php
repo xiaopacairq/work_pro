@@ -233,7 +233,7 @@ function clear_all(class_id) {
             class_id,
             is_clear_all: 1 //传递该值表示清空数据表
         }, function(res) {
-            if (res.status > 0) {
+            if (res.status != 200) {
                 layer.msg(res.result, {
                     icon: 2
                 })

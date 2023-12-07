@@ -18,7 +18,7 @@ class Base extends BaseController
     // 初始化：未登录的用户不允许进入
     public function initialize()
     {
-        $login_token = cookie('login_token');
+        $login_token = cookie('admin_login_token');
         $decoded = (array)JWT::decode($login_token, new Key(config('key.token_key'), "HS256"));
         $this->uname_id = $decoded['uname_id'];
         $this->uname = $decoded['uname'];
@@ -29,8 +29,6 @@ class Base extends BaseController
      */
     public function quit()
     {
-        cookie('login_token', null);
+        cookie('admin_login_token', null);
     }
-
-
 }

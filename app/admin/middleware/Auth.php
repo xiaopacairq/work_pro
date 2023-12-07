@@ -20,11 +20,11 @@ class Auth
 
     public function handle($request, \Closure $next)
     {
-        $login_token = cookie('login_token');
+        $login_token = cookie('admin_login_token');
 
         $errCode = $this->accountBusiness->checkToken($login_token);
         if ($errCode == config('status.login_token_err')) {
-            cookie('login_token', null);
+            cookie('admin_login_token', null);
         }
 
         $isLogin = (!preg_match('/login/', request()->pathinfo()) && !preg_match('/check/', request()->pathinfo()) && !preg_match('/verify/', request()->pathinfo()));

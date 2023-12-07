@@ -25,4 +25,9 @@ return [
     'upfile_excel_class_err' => '上传excel 班级代码错误',
     // 上传excel 内容格式错误
     'upfile_excel_context_err' => '上传excel 内容格式错误',
+
+    // 上传文件个数超过15个
+    'work_file_max_err' => '上传文件个数超过15个',
+    // 作业文件后缀不允许上传
+    'work_file_ext_err' => '作业文件后缀不允许上传',
 ];

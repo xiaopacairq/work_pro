@@ -2,20 +2,21 @@
 
 namespace app\common\business\admin;
 
-use think\facade\Request;
-
 use file\File;
-use file\Zip;
 use file\Zip1;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\IOFactory; //用于载入已有的xlsx文件
 use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception;
 
-use app\common\model\admin\Account as AccountModel;
-use app\common\model\admin\Stu as StuModel;
+use app\common\model\Admin as AdminModel;
+use app\common\model\Stu as StuModel;
+use app\common\model\IsWork as IsWorkModel;
+use app\common\model\Work as WorkModel;
+use app\common\model\Works as WorksModel;
+use app\common\model\Score as ScoreModel;
+
 
 
 /**
@@ -23,10 +24,14 @@ use app\common\model\admin\Stu as StuModel;
  */
 class Stu
 {
-    private $accountModel = null;
+    private $adminModel = null;
     private $stuModel = null;
+    private $isWorkodel = null;
+    private $workModel = null;
+    private $worksModel = null;
+    private $scoreModel = null;
+
     private $file = null;
-    private $zip = null;
     private $zip1 = null;
 
     // private $zip = null;
@@ -34,10 +39,14 @@ class Stu
     public function __construct()
     {
         // 核心逻辑
-        $this->accountModel = new AccountModel();
+        $this->adminModel = new AdminModel();
         $this->stuModel = new StuModel();
+        $this->isWorkodel = new IsWorkModel();
+        $this->workModel = new WorkModel();
+        $this->worksModel = new WorksModel();
+        $this->scoreModel = new ScoreModel();
+
         $this->file = new File();
-        $this->zip = new Zip();
         $this->zip1 = new Zip1();
 
         // $this->zip = new Zip();
@@ -61,11 +70,26 @@ class Stu
         //添加学生
         $this->stuModel->addStu($data);
 
-        // 清空文件
-        $this->clearExcel($class_id);
+        // 清空 excel 文件
+        $errCode =  $this->clearExcel($class_id);
+        if ($errCode !=  config('status.success')) {
+            if ($errCode == config('status.error')) {
+                return config('status.error');
+            } else {
+                return $errCode;
+            }
+        }
 
         // 创建新的stu_data.xlsx文件
-        $this->createExcel($class_id);
+        $errCode = $this->createExcel($class_id);
+        if ($errCode !=  config('status.success')) {
+            if ($errCode == config('status.error')) {
+                return config('status.error');
+            } else {
+                return $errCode;
+            }
+        }
+        return config('status.success');
     }
 
     /**
@@ -73,14 +97,30 @@ class Stu
      */
     public function editStu($data, $class_id, $stu_no)
     {
-        //添加学生
+        //修改学生
         $this->stuModel->editStu($data, $class_id, $stu_no);
 
-        // 清空文件
-        $this->clearExcel($class_id);
+        // 清空 excel 文件
+        $errCode =  $this->clearExcel($class_id);
+        if ($errCode !=  config('status.success')) {
+            if ($errCode == config('status.error')) {
+                return config('status.error');
+            } else {
+                return $errCode;
+            }
+        }
 
         // 创建新的stu_data.xlsx文件
-        $this->createExcel($class_id);
+        $errCode = $this->createExcel($class_id);
+        if ($errCode !=  config('status.success')) {
+            if ($errCode == config('status.error')) {
+                return config('status.error');
+            } else {
+                return $errCode;
+            }
+        }
+
+        return config('status.success');
     }
 
     /**
@@ -90,38 +130,43 @@ class Stu
      */
     public function createExcel($class_id, $data_stu = [])
     {
-        $this->clearExcel($class_id);
+        $errCode =  $this->clearExcel($class_id);
+        if ($errCode == config('status.error')) {
+            return config('status.error');
+        }
         if (!$data_stu) {
             $data_stu =  $this->stuModel->getStuListToExcel($class_id);
         }
-
-        // 创建新的stu_data.xlsx文件
-        $spreadsheet_stu_data = new Spreadsheet();
-        $spreadsheet_stu_data->getActiveSheet()->mergeCells('A1:D1');
-        $spreadsheet_stu_data->getActiveSheet()->getColumnDimension('A')->setWidth(20);
-        $spreadsheet_stu_data->getActiveSheet()->getColumnDimension('B')->setWidth(20);
-        $spreadsheet_stu_data->getActiveSheet()->getColumnDimension('C')->setWidth(20);
-        $spreadsheet_stu_data->getActiveSheet()->getColumnDimension('D')->setWidth(10);
-        $spreadsheet_stu_data->getActiveSheet()->getCell('A1')->setValue($class_id);
-        $spreadsheet_stu_data->getActiveSheet()->getCell('A2')->setValue('电子邮箱');
-        $spreadsheet_stu_data->getActiveSheet()->getCell('B2')->setValue('学号');
-        $spreadsheet_stu_data->getActiveSheet()->getCell('C2')->setValue('姓名');
-        $spreadsheet_stu_data->getActiveSheet()->getCell('D2')->setValue('性别');
-        $worksheet_stu_data = $spreadsheet_stu_data->getActiveSheet(); //读取excel文件
-        $worksheet_stu_data->getCell('A1')->setValue($class_id);
-        $worksheet_stu_data->getCell('A2')->setValue('电子邮箱');
-        $worksheet_stu_data->getCell('B2')->setValue('学号');
-        $worksheet_stu_data->getCell('C2')->setValue('姓名');
-        $worksheet_stu_data->getCell('D2')->setValue('性别');
-        for ($i = 0; $i < count($data_stu); $i++) {  //循环出excel所有的数据，并进行校验
-            $worksheet_stu_data->setCellValue('A' . ($i + 3), $data_stu[$i]['email']);
-            $worksheet_stu_data->setCellValue('B' . ($i + 3), $data_stu[$i]['stu_no']);
-            $worksheet_stu_data->setCellValue('C' . ($i + 3), $data_stu[$i]['stu_name']);
-            $worksheet_stu_data->setCellValue('D' . ($i + 3), $data_stu[$i]['gender'] == 0 ? "男" : "女");
+        try {
+            // 创建新的stu_data.xlsx文件
+            $spreadsheet_stu_data = new Spreadsheet();
+            $spreadsheet_stu_data->getActiveSheet()->mergeCells('A1:D1');
+            $spreadsheet_stu_data->getActiveSheet()->getColumnDimension('A')->setWidth(20);
+            $spreadsheet_stu_data->getActiveSheet()->getColumnDimension('B')->setWidth(20);
+            $spreadsheet_stu_data->getActiveSheet()->getColumnDimension('C')->setWidth(20);
+            $spreadsheet_stu_data->getActiveSheet()->getColumnDimension('D')->setWidth(10);
+            $spreadsheet_stu_data->getActiveSheet()->getCell('A1')->setValue($class_id);
+            $spreadsheet_stu_data->getActiveSheet()->getCell('A2')->setValue('电子邮箱');
+            $spreadsheet_stu_data->getActiveSheet()->getCell('B2')->setValue('学号');
+            $spreadsheet_stu_data->getActiveSheet()->getCell('C2')->setValue('姓名');
+            $spreadsheet_stu_data->getActiveSheet()->getCell('D2')->setValue('性别');
+            $worksheet_stu_data = $spreadsheet_stu_data->getActiveSheet(); //读取excel文件
+            $worksheet_stu_data->getCell('A1')->setValue($class_id);
+            $worksheet_stu_data->getCell('A2')->setValue('电子邮箱');
+            $worksheet_stu_data->getCell('B2')->setValue('学号');
+            $worksheet_stu_data->getCell('C2')->setValue('姓名');
+            $worksheet_stu_data->getCell('D2')->setValue('性别');
+            for ($i = 0; $i < count($data_stu); $i++) {  //循环出excel所有的数据，并进行校验
+                $worksheet_stu_data->setCellValue('A' . ($i + 3), $data_stu[$i]['email']);
+                $worksheet_stu_data->setCellValue('B' . ($i + 3), $data_stu[$i]['stu_no']);
+                $worksheet_stu_data->setCellValue('C' . ($i + 3), $data_stu[$i]['stu_name']);
+                $worksheet_stu_data->setCellValue('D' . ($i + 3), $data_stu[$i]['gender'] == 0 ? "男" : "女");
+            }
+            $writer_stu_data = new Xlsx($spreadsheet_stu_data);
+            $writer_stu_data->save('storage/' . $class_id . '/stu_data' . '/' . $class_id . '_stu_data.xlsx');
+        } catch (\PhpOffice\PhpSpreadsheet\Reader\Exception $e) {
+            return $e->getMessage();
         }
-        $writer_stu_data = new Xlsx($spreadsheet_stu_data);
-        $writer_stu_data->save('storage/' . $class_id . '/stu_data' . '/' . $class_id . '_stu_data.xlsx');
-
         return config('status.success');
     }
 
@@ -202,23 +247,60 @@ class Stu
     public function delStu($class_id, $stu_no, $is_clear_all)
     {
         if ($is_clear_all) { //清空所有数据
-            // 清空文件
-            $this->clearExcel($class_id);
+            // 清空 stu\works\is_work\works\score 数据表
+            // 启动事务
+            $this->stuModel->delStu($class_id);
+            $this->isWorkodel->delIsWork($class_id);
+            $this->worksModel->delWorks($class_id);
+            $this->scoreModel->delScore($class_id);
 
-            // 清空 stu\works\is_work\score 数据表
-            $this->stuModel->clearStuOrWorksOrIsWorkOrScore($class_id);
+            // 清空文件
+            $errCode =  $this->clearExcel($class_id);
+            if ($errCode !=  config('status.success')) {
+                if ($errCode == config('status.error')) {
+                    return config('status.error');
+                } else {
+                    return $errCode;
+                }
+            }
 
             // 创建新的stu_data.xlsx文件
-            $this->createExcel($class_id);
+            $errCode = $this->createExcel($class_id);
+            if ($errCode !=  config('status.success')) {
+                if ($errCode == config('status.error')) {
+                    return config('status.error');
+                } else {
+                    return $errCode;
+                }
+            }
+            return config('status.success');
         } else {  //删除单条数据
-            // 清空文件
-            $this->clearExcel($class_id);
+            // 清空 stu\works\is_work\works\score 数据表
 
-            // 清空 stu\works\is_work\score 数据表
-            $this->stuModel->clearStuOrWorksOrIsWorkOrScore($class_id, $stu_no);
+            $this->stuModel->delStu($class_id, $stu_no);
+            $this->isWorkodel->delISWork($class_id, $stu_no);
+            $this->worksModel->delWorks($class_id, $stu_no);
+            $this->scoreModel->delScore($class_id, $stu_no);
+
+            // 清空文件
+            $errCode =  $this->clearExcel($class_id);
+            if ($errCode !=  config('status.success')) {
+                if ($errCode == config('status.error')) {
+                    return config('status.error');
+                } else {
+                    return $errCode;
+                }
+            }
 
             // 创建新的stu_data.xlsx文件
-            $this->createExcel($class_id);
+            $errCode = $this->createExcel($class_id);
+            if ($errCode !=  config('status.success')) {
+                if ($errCode == config('status.error')) {
+                    return config('status.error');
+                } else {
+                    return $errCode;
+                }
+            }
         }
         return config('status.success');
     }
@@ -228,7 +310,6 @@ class Stu
      */
     public function getZip($class_id)
     {
-        // $this->zip->zip($class_id, 'stu_data');
         $this->zip1->zip($class_id, 'stu_data');
     }
 
@@ -237,7 +318,7 @@ class Stu
      */
     public function sendEmail($data, $is_all)
     {
-        $admin = $this->accountModel->findByAdmin($data['admin']);
+        $admin = $this->adminModel->findByAdmin($data['admin']);
         $class_id = $data['class_id'];
         $class_name = $data['class_name'];
         $stu_no = $data['stu_no'];
@@ -262,8 +343,13 @@ class Stu
     private function clearExcel($class_id)
     {
         if (file_exists('storage' . '/' . $class_id . '/stu_data' . '/' . $class_id . '_stu_data.xlsx')) {
-            $this->file->unlink_file('storage' . '/' . $class_id . '/stu_data' . '/' . $class_id . '_stu_data.xlsx');
+            $res = $this->file->unlink_file('storage' . '/' . $class_id . '/stu_data' . '/' . $class_id . '_stu_data.xlsx');
+            if (!$res) {
+                return config('status.error');
+            }
+            return config('status.success');
         }
+        return config('status.success');
     }
 
     /**邮件发送服务 */

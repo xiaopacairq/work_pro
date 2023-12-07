@@ -8,9 +8,9 @@ use think\facade\Db;
 
 use think\exception\ValidateException;
 
-use app\common\model\admin\Classes as ClassesModel;
-use app\common\model\admin\Score as ScoreModel;
-use app\common\model\admin\Work as WorkModel;
+use app\common\model\Classes as ClassesModel;
+use app\common\model\Score as ScoreModel;
+use app\common\model\Work as WorkModel;
 use app\common\business\admin\Work as WorkBuisness;
 use app\common\validate\admin\Work as WorkValidate;
 
@@ -60,14 +60,6 @@ class Work extends Base
     public function add()
     {
         if (Request::isPost()) {
-            if (false === Request::checkToken('__token__')) {
-                return $this->show(
-                    config("status.error"),
-                    config("message.error"),
-                    '请勿重复提交'
-                );
-            }
-
             $data['class_id'] = (int)Request::post('class_id', '');
             $data['work_id'] = (int)Request::post('work_id', '');
             $data['work_remarks'] = trim(Request::post('work_remarks', ''));
@@ -91,6 +83,14 @@ class Work extends Base
                     config("status.error"),
                     config("message.error"),
                     '作业编号已存在'
+                );
+            }
+
+            if (false === Request::checkToken('__token__')) {
+                return $this->show(
+                    config("status.error"),
+                    config("message.error"),
+                    '请勿重复提交'
                 );
             }
 
@@ -118,7 +118,6 @@ class Work extends Base
     public function edit()
     {
         if (Request::isPost()) {
-
             $class_id = (int)Request::post('class_id', '');
             $work_id = (int)Request::post('work_id', '');
             $data['work_remarks'] = trim(Request::post('work_remarks', ''));
@@ -136,6 +135,7 @@ class Work extends Base
                     $e->getMessage(),
                 );
             }
+
             $data['work_start_time'] = date('Y-m-d H:i:s', time());
 
 
@@ -171,7 +171,7 @@ class Work extends Base
         $class_id = (int)Request::post('class_id', '');
         $work_id = Request::post('work_id', '');  //删除作业的score、is_work、works记录
 
-        $this->workBuisness->del($id, $class_id, $work_id);
+        $this->workBuisness->del($class_id, $work_id);
 
         return $this->show(
             config("status.success"),

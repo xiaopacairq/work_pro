@@ -8,7 +8,10 @@ use PhpOffice\PhpSpreadsheet\IOFactory; //用于载入已有的xlsx文件
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx; //保存xlsx文件
 
-use app\common\model\admin\Score as ScoreModel;
+use app\common\model\Stu as StuModel;
+use app\common\model\Work as WorkModel;
+use app\common\model\IsWork as IsWorkModel;
+use app\common\model\Score as ScoreModel;
 
 /**
  * 执行核心逻辑
@@ -18,6 +21,9 @@ class Score
 
     private $file = null;
     private $zip1 = null;
+    private $stuModel = null;
+    private $workModel = null;
+    private $isWorkModel = null;
     private $scoreModel = null;
 
     // private $zip = null;
@@ -27,6 +33,9 @@ class Score
         // 核心逻辑
         $this->file = new File();
         $this->zip1 = new Zip1();
+        $this->stuModel = new StuModel();
+        $this->workModel = new WorkModel();
+        $this->isWorkModel = new IsWorkModel();
         $this->scoreModel = new ScoreModel();
     }
 
@@ -43,9 +52,9 @@ class Score
      */
     public function getStuScoreList($class_id)
     {
-        $data['stu'] = $this->scoreModel->getStuList($class_id);
-        $data['work'] = $this->scoreModel->getWorkList($class_id);
-        $data['is_work'] = $this->scoreModel->getIsWorkList($class_id);
+        $data['stu'] = $this->stuModel->getStuListByClassId($class_id);
+        $data['work'] = $this->workModel->getWorkStatusList($class_id);
+        $data['is_work'] = $this->isWorkModel->getIsWorkList($class_id);
         $data['scores'] = $this->scoreModel->getScoreGroupList($class_id);
         $data['work_count'] = count($data['work']);
 

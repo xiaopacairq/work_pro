@@ -1,10 +1,8 @@
 <?php
 
-namespace app\common\model\admin;
+namespace app\common\model;
 
 use think\Model;
-use think\facade\Db;
-
 
 class Stu extends Model
 {
@@ -24,12 +22,22 @@ class Stu extends Model
      */
     public function getStuList($class_id, $where)
     {
-        $res = Db::table('stu')->where('class_id', $class_id)->where(function ($query) use ($where) {
+        $res = $this->where('class_id', $class_id)->where(function ($query) use ($where) {
             $query->whereOr($where);
         })->order('stu_no', 'asc')->paginate([
             'list_rows' => 8,
             'query' => request()->param(),
         ]);
+        return $res;
+    }
+
+    /**
+     * 获取所有学生的信息
+     */
+    public function getStuListByClassId($class_id)
+    {
+        //获取所有的学生
+        $res = $this->field('stu_no,stu_name')->where('class_id', $class_id)->order('stu_no', 'asc')->select()->toArray();
         return $res;
     }
 
@@ -64,21 +72,14 @@ class Stu extends Model
     }
 
     /**
-     * 清空数据表
+     * 删除学生数据
      */
-    public function clearStuOrWorksOrIsWorkOrScore($class_id, $stu_no = null)
+    public function delStu($class_id, $stu_no = null)
     {
         if (empty($stu_no)) {
-            //清空整个班级数据
-            Db::table('stu')->where('class_id', $class_id)->delete();
-            Db::table('works')->where('class_id', $class_id)->delete();
-            Db::table('is_work')->where('class_id', $class_id)->delete();
-            Db::table('score')->where('class_id', $class_id)->delete();
+            $this->where('class_id', $class_id)->delete();
         } else {
-            Db::table('stu')->where(['stu_no' => $stu_no, 'class_id' => $class_id])->delete();
-            Db::table('score')->where(['stu_no' => $stu_no, 'class_id' => $class_id])->delete();
-            Db::table('is_work')->where(['stu_no' => $stu_no, 'class_id' => $class_id])->delete();
-            Db::table('works')->where(['stu_no' => $stu_no, 'class_id' => $class_id])->delete();
+            $this->where(['stu_no' => $stu_no, 'class_id' => $class_id])->delete();
         }
     }
 }

@@ -4,10 +4,17 @@ namespace app\admin\controller;
 
 use think\facade\Request;
 
-use app\common\validate\admin\AdminEdit;
+use app\common\validate\admin\Admin;
 use app\common\validate\admin\Classes as ClassesValidate;
 use app\common\business\admin\Classes as ClassesBusiness;
-use app\common\model\admin\Classes as ClassesModel;
+
+use app\common\model\Classes as ClassesModel;
+use app\common\model\Admin as AdminModel;
+use app\common\model\Stu as StuModel;
+use app\common\model\Work as WorkModel;
+use app\common\model\IsWork as IsWorkModel;
+use app\common\model\Works as WorksModel;
+use app\common\model\Score as ScoreModel;
 
 use think\exception\ValidateException;
 
@@ -18,12 +25,24 @@ class Classes extends Base
 {
     private $classesBusiness = null;
     private $classesModel = null;
+    private $adminModel = null;
+    private $stuModel = null;
+    private $workModel = null;
+    private $isWorkodel = null;
+    private $worksModel = null;
+    private $scoreModel = null;
 
     public function __construct()
     {
         // 核心逻辑
         $this->classesBusiness = new ClassesBusiness();
         $this->classesModel = new ClassesModel();
+        $this->adminModel = new AdminModel();
+        $this->stuModel = new StuModel();
+        $this->workModel = new WorkModel();
+        $this->isWorkodel = new IsWorkModel();
+        $this->worksModel = new WorksModel();
+        $this->scoreModel = new ScoreModel();
         $this->initialize();
     }
 
@@ -33,6 +52,23 @@ class Classes extends Base
     public function information()
     {
         if (Request::isPost()) { //修改数据
+            $id = (int)Request::post('id', '');
+            $data['pwd'] = Request::post('pwd', '');
+            $data['email'] = Request::post('email', '');
+            $data['email_system'] = Request::post('email_system', '');
+            $data['check_code'] = Request::post('check_code', '');
+            $data['server_ip'] = Request::post('server_ip', '');
+
+            //验证类判断
+            try {
+                validate(Admin::class)->scene('edit')->check($data);
+            } catch (ValidateException $e) {
+                return $this->show(
+                    config("status.error"),
+                    config("message.error"),
+                    $e->getMessage()
+                );
+            }
 
             // 禁止重复请求
             if (false === Request::checkToken('__token__')) {
@@ -43,25 +79,7 @@ class Classes extends Base
                 );
             }
 
-            $id = (int)Request::post('id', '');
-            $data['pwd'] = Request::post('pwd', '');
-            $data['email'] = Request::post('email', '');
-            $data['email_system'] = Request::post('email_system', '');
-            $data['check_code'] = Request::post('check_code', '');
-            $data['server_ip'] = Request::post('server_ip', '');
-
-            //验证类判断
-            try {
-                validate(AdminEdit::class)->check($data);
-            } catch (ValidateException $e) {
-                return $this->show(
-                    config("status.error"),
-                    config("message.error"),
-                    $e->getMessage()
-                );
-            }
-
-            $this->classesModel->setAdmin($id, $data);
+            $this->adminModel->editAdmin($id, $data);
 
             return $this->show(
                 config("status.success"),
@@ -70,7 +88,7 @@ class Classes extends Base
             );
         } else { //页面展示
             $id = $this->uname_id;
-            $data['admin'] = $this->classesModel->getAdmin($id);
+            $data['admin'] = $this->adminModel->findAdmin($id);
 
             return view('classes/information', $data);
         }
@@ -82,7 +100,7 @@ class Classes extends Base
     public function index()
     {
         $data['uname'] = $this->uname;
-        $data['classes'] = $this->classesModel->getClasses();
+        $data['classes'] = $this->classesModel->getClassesList();
 
         return view('classes/index', $data);
     }
@@ -93,15 +111,7 @@ class Classes extends Base
     public function add()
     {
         if (Request::isPost()) {
-
-            if (false === Request::checkToken('__token__')) {
-                return $this->show(
-                    config("status.error"),
-                    config("message.error"),
-                    '请勿重复提交'
-                );
-            }
-
+            // 执行添加
             $data['class_id'] = trim(Request::post('class_id', ''));
             $data['class_name'] = trim(Request::post('class_name', ''));
             $data['status'] = trim(Request::post('status', ''));
@@ -110,7 +120,7 @@ class Classes extends Base
 
             //验证类判断
             try {
-                validate(ClassesValidate::class)->check($data);
+                validate(ClassesValidate::class)->scene('add')->check($data);
             } catch (ValidateException $e) {
                 return $this->show(
                     config("status.error"),
@@ -118,8 +128,6 @@ class Classes extends Base
                     $e->getMessage(),
                 );
             }
-
-            $data['start_time'] = date("Y-m-d H:i:s", time());
 
             // 班级代码重复性判断
             $isClasses = $this->classesModel->findClasses($data['class_id']);
@@ -131,6 +139,17 @@ class Classes extends Base
                 );
             }
 
+            if (false === Request::checkToken('__token__')) {
+                return $this->show(
+                    config("status.error"),
+                    config("message.error"),
+                    '请勿重复提交'
+                );
+            }
+
+            $data['start_time'] = date("Y-m-d H:i:s", time());
+
+
             // 创建excel表格，保存班级数据
             $errCode = $this->classesBusiness->createFile($data['class_id']);
             if ($errCode != config('status.success')) {
@@ -139,6 +158,12 @@ class Classes extends Base
                         config("status.error"),
                         config("message.error"),
                         '文件夹创建失败'
+                    );
+                } else {
+                    return $this->show(
+                        config("status.error"),
+                        config("message.error"),
+                        $errCode
                     );
                 }
             }
@@ -162,13 +187,7 @@ class Classes extends Base
     public function edit()
     {
         if (Request::isPost()) {
-            if (false === Request::checkToken('__token__')) {
-                return $this->show(
-                    config("status.error"),
-                    config("message.error"),
-                    '请勿重复提交'
-                );
-            }
+
 
             $class_id = (int)Request::post('class_id', '');
 
@@ -188,8 +207,16 @@ class Classes extends Base
                     $e->getMessage(),
                 );
             }
+
             $data['start_time'] = date("Y-m-d H:i:s", time());
 
+            if (false === Request::checkToken('__token__')) {
+                return $this->show(
+                    config("status.error"),
+                    config("message.error"),
+                    '请勿重复提交'
+                );
+            }
             $this->classesModel->updateClasses($class_id, $data);
 
             return $this->show(
@@ -230,7 +257,12 @@ class Classes extends Base
             );
         }
 
-        $this->classesModel->delData($class_id);
+        $this->classesModel->delClasses($class_id);
+        $this->stuModel->delStu($class_id);
+        $this->workModel->delWork($class_id);
+        $this->isWorkodel->delIsWork($class_id);
+        $this->worksModel->delWorks($class_id);
+        $this->scoreModel->delScore($class_id);
 
         return $this->show(
             config("status.success"),

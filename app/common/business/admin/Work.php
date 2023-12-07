@@ -5,9 +5,11 @@ namespace app\common\business\admin;
 use file\File;
 use file\Zip1;
 
-use app\common\model\admin\Score as ScoreModel;
-use app\common\model\admin\Stu as StuModel;
-use app\common\model\admin\Work as WorkModel;
+use app\common\model\Score as ScoreModel;
+use app\common\model\Stu as StuModel;
+use app\common\model\Work as WorkModel;
+use app\common\model\IsWork as IsWorkModel;
+use app\common\model\Works as WorksModel;
 
 /**
  * 执行核心逻辑
@@ -18,14 +20,18 @@ class Work
     private $scoreModel = null;
     private $stuModel = null;
     private $workModel = null;
+    private $isWorkModel = null;
+    private $worksModel = null;
     private $zip1 = null;
 
     public function __construct()
     {
-        $this->zip1 = new Zip1();
         $this->scoreModel = new ScoreModel();
         $this->stuModel = new StuModel();
         $this->workModel = new WorkModel();
+        $this->isWorkModel = new IsWorkModel();
+        $this->worksModel = new WorkModel();
+        $this->zip1 = new Zip1();
     }
 
     /**
@@ -39,7 +45,7 @@ class Work
     /**
      * 删除作业
      */
-    public function del($id, $class_id, $work_id)
+    public function del($class_id, $work_id)
     {
         $file = new file();
         if (file_exists("storage" . "/" . $class_id . '/stu_work' . '/' . $work_id)) { //判断文件是否存在
@@ -47,7 +53,10 @@ class Work
             $file->remove_dir("storage" . "/" . $class_id . '/stu_work' . '/' . $work_id, true); //清空作业目录
         }
 
-        $this->workModel->delWork($id, $class_id, $work_id);
+        $this->workModel->delWorkByWorkId($class_id, $work_id);
+        $this->isWorkModel->delWorkByWorkId($class_id, $work_id);
+        $this->worksModel->delWorkByWorkId($class_id, $work_id);
+        $this->scoreModel->delWorkByWorkId($class_id, $work_id);
     }
 
     /**
@@ -60,7 +69,7 @@ class Work
         $stu_count = count($data['works']);
 
         foreach ($data['works'] as $k => $v) {
-            $res = $this->workModel->findStuWorkStatusByIsWork($v['stu_no'], $work_id);
+            $res = $this->isWorkModel->findStuWorkStatusByIsWork($v['stu_no'], $work_id);
             if (!empty($res)) { //如果学生已点击
                 if ($res['is_true'] == 1) { //如果学生点击作业且确认上传
                     $data['works'][$k]['is_true'] = $res['is_true'];

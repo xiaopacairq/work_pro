@@ -2,7 +2,8 @@
 
 namespace app\common\business\admin;
 
-use app\common\model\admin\Account as AccountModel;
+use app\common\model\Admin as AdminModel;
+use app\common\model\AdminIp as AdminIpModel;
 
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
@@ -12,13 +13,15 @@ use Firebase\JWT\Key;
  */
 class Account
 {
-    private $accountModel = null;
+    private $adminModel = null;
+    private $adminIpModel = null;
     private $expTime = 60 * 60;
 
     public function __construct()
     {
         // 核心逻辑
-        $this->accountModel = new AccountModel();
+        $this->adminModel = new AdminModel();
+        $this->adminIpModel = new AdminIpModel();
     }
 
     /**
@@ -27,19 +30,25 @@ class Account
     public function check($data)
     {
         // 查找用户
-        $user = $this->accountModel->findByAdmin($data['uname']);
+        $user = $this->adminModel->findAdminByUname($data['uname']);
         if ($user->isEmpty()) {
             return config("status.error");
         }
 
+        // 密码错误
         if ($user['pwd'] != $data['pwd']) {
             return config("status.error");
         }
 
-        $this->accountModel->updateAdminTimeOrCount($user['id']);
+        $this->adminModel->updateAdminTimeOrCount($user['id']);
 
         $login_token = $this->createToken($user['id'], $user['uname']);
-        cookie('login_token', $login_token);
+
+        if ($login_token == config('status.error')) {
+            return config('status.error');
+        }
+
+        cookie('admin_login_token', $login_token);
 
         $this->addIp($user['id'], $login_token);
 
@@ -97,7 +106,7 @@ class Account
             'token' => $login_token,
         ];
 
-        $this->accountModel->addAdminIp($data);
+        $this->adminIpModel->addAdminIp($data);
     }
 
     /**

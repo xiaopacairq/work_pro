@@ -1,10 +1,10 @@
 <style>
-.container {
-    margin: 20px auto;
+    .container {
+        margin: 20px auto;
 
-    width: 40%;
-    text-align: center;
-}
+        width: 40%;
+        text-align: center;
+    }
 </style>
 <div class="container">
     <input type="hidden" name="__token__" value="{$token}" />
@@ -13,22 +13,19 @@
         <div class="layui-form-item">
             <label class="layui-form-label">班级代码</label>
             <div class="layui-input-block">
-                <input type="text" autocomplete="on" placeholder="请输入全数字编号" class="layui-input"
-                    value="{$class.class_id}" disabled>
+                <input type="text" autocomplete="on" placeholder="请输入全数字编号" class="layui-input" value="{$class.class_id}" disabled>
             </div>
         </div>
         <div class="layui-form-item">
             <label class="layui-form-label">课程名称</label>
             <div class="layui-input-block">
-                <input type="text" name="class_name" autocomplete="off" placeholder="例：管理信息课程" class="layui-input"
-                    value="{$class.class_name}">
+                <input type="text" name="class_name" autocomplete="off" placeholder="例：管理信息课程" class="layui-input" value="{$class.class_name}">
             </div>
         </div>
         <div class="layui-form-item">
             <label class="layui-form-label">课程信息</label>
             <div class="layui-input-block">
-                <input type="text" name="class_time" autocomplete="off" placeholder="例：公楼C404 周二上午一二节"
-                    class="layui-input" value="{$class.class_time}">
+                <input type="text" name="class_time" autocomplete="off" placeholder="例：公楼C404 周二上午一二节" class="layui-input" value="{$class.class_time}">
             </div>
         </div>
         <div class="layui-form-item layui-form-text">
@@ -43,37 +40,40 @@
     </div>
 </div>
 <script>
-function save(class_id) {
-    var __token__ = $('input[name="__token__"]').val();
-    var class_name = $('input[name="class_name"]').val();
-    var class_time = $('input[name="class_time"]').val();
-    var remarks = $('textarea[name="remarks"]').val();
+    function save(class_id) {
+        var __token__ = $('input[name="__token__"]').val();
+        var class_name = $('input[name="class_name"]').val();
+        var class_time = $('input[name="class_time"]').val();
+        var remarks = $('textarea[name="remarks"]').val();
 
-    if (class_name == '') {
-        layer.msg('必填项不能为空', {
-            icon: 2
-        })
-    } else {
-        $.post('/teacher/class_home', {
-            __token__,
-            class_id,
-            class_name,
-            class_time,
-            remarks,
-        }, function(res) {
-            if (res.status != 200) {
-                layer.msg(res.result, {
-                    icon: 2
-                })
-            } else {
-                layer.msg(res.result, {
-                    icon: 1
-                })
-                setTimeout(function() {
-                    window.location.reload()
-                }, 1000);
-            }
-        }, 'json');
+        if (class_name == '') {
+            layer.msg('必填项不能为空', {
+                icon: 2
+            })
+        } else {
+            $.post('/teacher/class_home', {
+                __token__,
+                class_id,
+                class_name,
+                class_time,
+                remarks,
+            }, function(res) {
+                if (res.status != 200) {
+                    layer.msg(res.result, {
+                        icon: 2
+                    })
+                    setTimeout(function() {
+                        window.location.reload()
+                    }, 1000);
+                } else {
+                    layer.msg(res.result, {
+                        icon: 1
+                    })
+                    setTimeout(function() {
+                        window.location.reload()
+                    }, 1000);
+                }
+            }, 'json');
+        }
     }
-}
 </script>

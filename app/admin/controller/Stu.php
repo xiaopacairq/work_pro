@@ -7,8 +7,8 @@ use think\facade\View;
 
 use think\exception\ValidateException;
 
-use app\common\model\admin\Classes as ClassesModel;
-use app\common\model\admin\Stu as StuModel;
+use app\common\model\Classes as ClassesModel;
+use app\common\model\Stu as StuModel;
 use app\common\business\admin\Stu as StuBusiness;
 use app\common\validate\admin\Stu as StuValidate;
 
@@ -55,7 +55,7 @@ class Stu extends Base
         }
 
         $data['stu'] = $this->stuModel->getStuList($class_id, $where);
-        $data['page'] = $this->stuModel->getStuList($class_id, $where)->render();
+        $data['page'] = $data['stu']->render();
 
 
 
@@ -113,7 +113,7 @@ class Stu extends Base
             return $this->show(
                 config("status.success"),
                 config("message.success"),
-                '更新成功'
+                '导入成功'
             );
         } else {
             $data['class_id'] = (int)Request::get('class_id', '');
@@ -140,6 +140,7 @@ class Stu extends Base
             );
         }
 
+        // $is_clear_all 标记一键清空
         $errCode =  $this->stuBusiness->delStu($class_id, $stu_no, $is_clear_all);
         if ($errCode != config('status.success')) {
             if ($errCode == config('status.error')) {
@@ -147,6 +148,12 @@ class Stu extends Base
                     config("status.error"),
                     config("message.error"),
                     '文件删除失败'
+                );
+            } else {
+                return $this->show(
+                    config("status.error"),
+                    config("message.error"),
+                    $errCode
                 );
             }
         }
@@ -164,14 +171,6 @@ class Stu extends Base
     public function add()
     {
         if (Request::isPost()) {
-            if (false === Request::checkToken('__token__')) {
-                return $this->show(
-                    config("status.error"),
-                    config("message.error"),
-                    '请勿重复提交'
-                );
-            }
-
             $class_id = (int)Request::post('class_id', '');
             $data['class_id'] = (int)Request::post('class_id', '');
             $data['stu_no'] = (int)Request::post('stu_no', '');
@@ -199,8 +198,30 @@ class Stu extends Base
                 );
             }
 
-            $this->stuBusiness->addStu($data, $class_id);
+            if (false === Request::checkToken('__token__')) {
+                return $this->show(
+                    config("status.error"),
+                    config("message.error"),
+                    '请勿重复提交'
+                );
+            }
 
+            $errCode = $this->stuBusiness->addStu($data, $class_id);
+            if ($errCode != config('status.success')) {
+                if ($errCode == config('status.error')) {
+                    return $this->show(
+                        config("status.error"),
+                        config("message.error"),
+                        '修改错误'
+                    );
+                } else {
+                    return $this->show(
+                        config("status.error"),
+                        config("message.error"),
+                        $errCode
+                    );
+                }
+            }
 
             return $this->show(
                 config("status.success"),
@@ -245,7 +266,22 @@ class Stu extends Base
                 );
             }
 
-            $this->stuBusiness->editStu($data, $class_id, $stu_no);
+            $errCode = $this->stuBusiness->editStu($data, $class_id, $stu_no);
+            if ($errCode != config('status.success')) {
+                if ($errCode == config('status.error')) {
+                    return $this->show(
+                        config("status.error"),
+                        config("message.error"),
+                        '修改错误'
+                    );
+                } else {
+                    return $this->show(
+                        config("status.error"),
+                        config("message.error"),
+                        $errCode
+                    );
+                }
+            }
 
             return $this->show(
                 config("status.success"),

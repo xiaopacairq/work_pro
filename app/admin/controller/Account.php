@@ -3,7 +3,7 @@
 namespace app\admin\controller;
 
 use app\BaseController;
-use app\common\validate\admin\DoLogin;
+use app\common\validate\admin\Admin;
 use app\common\business\admin\Account as AccountBusiness;
 
 use think\captcha\facade\Captcha;
@@ -14,7 +14,6 @@ use think\exception\ValidateException;
 /**
  * 登录校验
  */
-
 class Account extends BaseController
 {
 
@@ -55,7 +54,7 @@ class Account extends BaseController
 
         //验证类判断
         try {
-            validate(Dologin::class)->scene('login')->check($data);
+            validate(Admin::class)->scene('login')->check($data);
         } catch (ValidateException $e) {
             return $this->show(
                 config("status.error"),
@@ -88,14 +87,14 @@ class Account extends BaseController
      */
     private function isLogin()
     {
-        $login_token = cookie('login_token');
+        $login_token = cookie('admin_login_token');
 
         $errCode = $this->accountBusiness->checkToken($login_token);
 
         // 若token失效，这清空token
         if ($errCode != config("status.success")) {
             if ($errCode == config('status.login_token_err')) {
-                $login_token = cookie('login_token', null);
+                $login_token = cookie('admin_login_token', null);
             }
         }
 

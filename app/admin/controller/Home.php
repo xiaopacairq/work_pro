@@ -7,7 +7,7 @@ use think\facade\View;
 
 use think\exception\ValidateException;
 
-use app\common\model\admin\Classes as ClassesModel;
+use app\common\model\Classes as ClassesModel;
 use app\common\validate\admin\Classes as ClassesValidate;
 
 
@@ -28,13 +28,6 @@ class Home extends Base
     public function index()
     {
         if (Request::isPost()) { //修改数据
-            if (false === Request::checkToken('__token__')) {
-                return $this->show(
-                    config("status.error"),
-                    config("message.error"),
-                    '请勿重复提交'
-                );
-            }
 
             $class_id = (int)Request::post('class_id', '');
             $data['class_name'] = trim(Request::post('class_name', ''));
@@ -49,6 +42,14 @@ class Home extends Base
                     config("status.error"),
                     config("message.error"),
                     $e->getMessage()
+                );
+            }
+
+            if (false === Request::checkToken('__token__')) {
+                return $this->show(
+                    config("status.error"),
+                    config("message.error"),
+                    '请勿重复提交'
                 );
             }
 

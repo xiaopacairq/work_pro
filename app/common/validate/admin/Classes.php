@@ -44,6 +44,7 @@ class Classes extends Validate
      * @var array
      */
     protected $scene = [
+        'add' => ['class_id', 'class_name', 'status', 'class_time', 'remarks'],
         'edit' => ['class_name', 'status', 'class_time', 'remarks'],
         'home_edit' => ['class_name', 'class_time', 'remarks'],
     ];

@@ -51,32 +51,34 @@ class Classes
             return config('status.error');
         }
 
-        // 创建stu_data.xlsx文件
-        $spreadsheet_stu_data = new Spreadsheet();
-        $spreadsheet_stu_data->getActiveSheet()->mergeCells('A1:D1');
-        $spreadsheet_stu_data->getActiveSheet()->getColumnDimension('A')->setWidth(20);
-        $spreadsheet_stu_data->getActiveSheet()->getColumnDimension('B')->setWidth(20);
-        $spreadsheet_stu_data->getActiveSheet()->getColumnDimension('C')->setWidth(20);
-        $spreadsheet_stu_data->getActiveSheet()->getColumnDimension('D')->setWidth(10);
-        $spreadsheet_stu_data->getActiveSheet()->getCell('A1')->setValue($class_id);
-        $spreadsheet_stu_data->getActiveSheet()->getCell('A2')->setValue('电子邮箱');
-        $spreadsheet_stu_data->getActiveSheet()->getCell('B2')->setValue('学号');
-        $spreadsheet_stu_data->getActiveSheet()->getCell('C2')->setValue('姓名');
-        $spreadsheet_stu_data->getActiveSheet()->getCell('D2')->setValue('性别');
-        $worksheet = $spreadsheet_stu_data->getActiveSheet();
-        $writer_stu_data = new Xlsx($spreadsheet_stu_data);
-        $writer_stu_data->save('storage' . '/' . $class_id . '/stu_data' . '/' . $class_id . '_stu_data.xlsx');
+        try {
+            // 创建stu_data.xlsx文件
+            $spreadsheet_stu_data = new Spreadsheet();
+            $spreadsheet_stu_data->getActiveSheet()->mergeCells('A1:D1');
+            $spreadsheet_stu_data->getActiveSheet()->getColumnDimension('A')->setWidth(20);
+            $spreadsheet_stu_data->getActiveSheet()->getColumnDimension('B')->setWidth(20);
+            $spreadsheet_stu_data->getActiveSheet()->getColumnDimension('C')->setWidth(20);
+            $spreadsheet_stu_data->getActiveSheet()->getColumnDimension('D')->setWidth(10);
+            $spreadsheet_stu_data->getActiveSheet()->getCell('A1')->setValue($class_id);
+            $spreadsheet_stu_data->getActiveSheet()->getCell('A2')->setValue('电子邮箱');
+            $spreadsheet_stu_data->getActiveSheet()->getCell('B2')->setValue('学号');
+            $spreadsheet_stu_data->getActiveSheet()->getCell('C2')->setValue('姓名');
+            $spreadsheet_stu_data->getActiveSheet()->getCell('D2')->setValue('性别');
+            $worksheet = $spreadsheet_stu_data->getActiveSheet();
+            $writer_stu_data = new Xlsx($spreadsheet_stu_data);
+            $writer_stu_data->save('storage' . '/' . $class_id . '/stu_data' . '/' . $class_id . '_stu_data.xlsx');
 
-        // 创建stu_score.xlsx文件
-        $spreadsheet_stu_score = new Spreadsheet();
-        $spreadsheet_stu_score->getActiveSheet()->getCell('A1')->setValue('学号');
-        $spreadsheet_stu_score->getActiveSheet()->getCell('B1')->setValue('姓名');
-        $spreadsheet_stu_score->getActiveSheet()->getCell('C1')->setValue('平时成绩');
-        $worksheet = $spreadsheet_stu_score->getActiveSheet();
-        $writer_stu_score = new Xlsx($spreadsheet_stu_score);
-        $writer_stu_score->save('storage' . '/' . $class_id . '/stu_score' . '/' . $class_id . '_stu_score.xlsx');
-
-
+            // 创建stu_score.xlsx文件
+            $spreadsheet_stu_score = new Spreadsheet();
+            $spreadsheet_stu_score->getActiveSheet()->getCell('A1')->setValue('学号');
+            $spreadsheet_stu_score->getActiveSheet()->getCell('B1')->setValue('姓名');
+            $spreadsheet_stu_score->getActiveSheet()->getCell('C1')->setValue('平时成绩');
+            $worksheet = $spreadsheet_stu_score->getActiveSheet();
+            $writer_stu_score = new Xlsx($spreadsheet_stu_score);
+            $writer_stu_score->save('storage' . '/' . $class_id . '/stu_score' . '/' . $class_id . '_stu_score.xlsx');
+        } catch (\PhpOffice\PhpSpreadsheet\Reader\Exception $e) {
+            return $e->getMessage();
+        }
 
 
 

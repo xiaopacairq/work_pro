@@ -61,7 +61,7 @@
                 </div>
             </div>
             <div class="layui-form-item">
-                <label class="layui-form-label">学生网站入口</label>
+                <label class="layui-form-label">学生入口</label>
                 <div class="layui-input-block">
                     <input type="text" name="server_ip" autocomplete="off" class="layui-input"
                         value="{$admin.server_ip}">
@@ -106,12 +106,15 @@
                         layer.msg(res.result, {
                             icon: 2
                         })
+                        setTimeout(function() {
+                            window.location.reload()
+                        }, 1000);
                     } else {
                         layer.msg(res.result, {
                             icon: 1
                         })
                         setTimeout(function() {
-                            parent.window.location.reload()
+                            window.location.reload()
                         }, 1000);
                     }
                 }, 'json');
