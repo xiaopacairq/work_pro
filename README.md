@@ -1,74 +1,80 @@
 # 智慧作业管理使用手册
 
-> 1. 测试网站：
+> 1. 项目文档
 >
-> 学生端访问：http://works_pro.srqcode.com/student/login (默认班级编号：2005 账号：201120184 密码：123456)
+>    [基于 ThinkPHP 的智慧作业管理平台的设计和实现 20231208](/基于ThinkPHP的智慧作业管理平台的设计和实现20231208.pdf)
 >
-> 教师端访问：http://works_pro.srqcode.com/teacher/login (默认 账号：admin 密码：admin )
+> 2. 测试网站：
+>
+>    > 学生端访问：http://works.srqcode.com/www (默认班级编号：2023001 账号：2023001 密码：2023001)
+>    >
+>    > 教师端访问：http://works.srqcode.com/houtai (默认 账号：admin 密码：admin )
+>
+> 3. 环境要求：`PHP7.4` `MySQL5.7` `nginx1.6` `composer`
+>
+>    - 使用 phpstudy 等集成工具可一键部署 PHP、MySQL、nginx
+>
+>    - composer 安装教程：https://www.runoob.com/w3cnote/composer-install-and-usage.html
+>
+> 4. 执行下面命令，安装系统
+>
+>    ```
+>    #在任意目录执行克隆git仓库
+>    git clone https://github.com/xiaopacairq/works.git
+>
+>    #在目录下下载资源包，出现vendor表示安装成功
+>    composer install
+>
+>    #导入目录下works.sql文件到MySQL数据库中
+>    使用phpmyadmin或者Navicat导入即可
+>
+>    #配置数据库文件config/database.php
+>      'connections'     => [
+>            'mysql' => [
+>                // 数据库名
+>                'database'        => env('database.database', ''),
+>                // 用户名
+>                'username'        => env('database.username', ''),
+>                // 密码
+>                'password'        => env('database.password', ''),
+>                // 端口
+>                'hostport'        => env('database.hostport', '3306'),
+>          		....
+>            ],
+>        ]
+>
+>    ```
+>
+> 5. 启动 Web 服务
+>
+>    ```
+>    # 方案一，启动内置服务器
+>    #使用ThinkPHP命令行，开启Web服务
+>    php think run
+>    ```
+>
+>    ![1696646329642](./image/1696646329642.jpg)
+>
+>    学生端访问：http://0.0.0.0:8000/www (默认班级编号：2023001 账号：2023001 密码：2023001)
+>
+>    教师端访问：http://0.0.0.0:8000/houtai (默认 账号：admin 密码：admin )
+>
+>    方案二：使用 phpstudy、wamp 等集成工具部署
+>
+>    ![1696646890149](./image/1696646890149.jpg)
+>
+>    系统使用伪静态隐藏入口文件模式，在 public 目录下
+>
+>    若是开启`nginx`服务器，则将`nginx.htaccess`代码负责到`phpstudy`的伪静态中
+>
+>    若启动`Apache`服务器，则将`.htaccess`代码负责到`phpstudy`的伪静态中
+>
+>    学生端访问：http://works.cn/www (默认班级编号：2023001 账号：2023001 密码：2023001)
+>
+>    教师端访问：http://works.cn/houtai (默认 账号：admin 密码：admin )
 
-# 智慧作业管理系统重构
+> 访问上述路径后，出现登录页面即部署成功！
 
-### 优化内容如下
+![1696647809788](./image/1696647809788.jpg)
 
-- [x] 核心逻辑交给 business
-- [x] 数据层逻辑交给 model，按照数据表创建类
-- [x] 错误统一返回 json，并配置 config 错误代码
-- [x] 验证器 validate 统一校验数据层
-- [x] 表单令牌 token 禁止重复提交
-- [x] token 取代 session 登录
-- [x] 聚合 ip 接口，获取登录信息
-- [x] auth 中间件，实时监控 token，过期退出
-- [x] 采用强制路由，提升网站控制器安全性
-
-- [ ] 防盗链技术
-
-> 时间 ：12 月 1 日-12 月 7 日
-> 重构代码量如下表
-
-## Languages
-
-| language | files |  code | comment | blank | total |
-| :------- | ----: | ----: | ------: | ----: | ----: |
-| PHP      |    88 | 5,679 |     832 |   917 | 7,428 |
-
-## Directories
-
-| path                     | files |  code | comment | blank | total |
-| :----------------------- | ----: | ----: | ------: | ----: | ----: |
-| .                        |    88 | 5,679 |     832 |   917 | 7,428 |
-| . (Files)                |     9 |   160 |      88 |    42 |   290 |
-| admin                    |    34 | 2,711 |     196 |   344 | 3,251 |
-| admin (Files)            |     1 |     5 |       7 |     1 |    13 |
-| admin\\controller        |     7 |   801 |     128 |   175 | 1,104 |
-| admin\\middleware        |     1 |    27 |       4 |    12 |    43 |
-| admin\\route             |     7 |    40 |      22 |    18 |    80 |
-| admin\\view              |    18 | 1,838 |      35 |   138 | 2,011 |
-| admin\\view (Files)      |     1 |    82 |       0 |    10 |    92 |
-| admin\\view\\account     |     1 |   109 |       3 |     7 |   119 |
-| admin\\view\\classes     |     4 |   544 |       8 |    38 |   590 |
-| admin\\view\\home        |     1 |    76 |       0 |     3 |    79 |
-| admin\\view\\public      |     2 |   119 |       2 |    15 |   136 |
-| admin\\view\\score       |     1 |    59 |       1 |     3 |    63 |
-| admin\\view\\stu         |     4 |   445 |      13 |    31 |   489 |
-| admin\\view\\work        |     4 |   404 |       8 |    31 |   443 |
-| common                   |    23 | 1,464 |     454 |   334 | 2,252 |
-| common\\business         |     9 |   949 |     193 |   205 | 1,347 |
-| common\\business\\admin  |     5 |   673 |     136 |   132 |   941 |
-| common\\business\\common |     1 |     5 |       3 |     4 |    12 |
-| common\\business\\home   |     3 |   271 |      54 |    69 |   394 |
-| common\\model            |     9 |   372 |     171 |   104 |   647 |
-| common\\validate         |     5 |   143 |      90 |    25 |   258 |
-| common\\validate\\admin  |     4 |   120 |      72 |    20 |   212 |
-| common\\validate\\home   |     1 |    23 |      18 |     5 |    46 |
-| home                     |    22 | 1,344 |      94 |   197 | 1,635 |
-| home (Files)             |     1 |     5 |       7 |     1 |    13 |
-| home\\controller         |     5 |   360 |      51 |    90 |   501 |
-| home\\middleware         |     1 |    36 |       5 |    13 |    54 |
-| home\\route              |     5 |    23 |      15 |    14 |    52 |
-| home\\view               |    10 |   920 |      16 |    79 | 1,015 |
-| home\\view (Files)       |     1 |    82 |       0 |    10 |    92 |
-| home\\view\\account      |     1 |   112 |       3 |     8 |   123 |
-| home\\view\\dis_work     |     3 |   244 |       2 |    22 |   268 |
-| home\\view\\home         |     1 |    59 |       0 |     1 |    60 |
-| home\\view\\public       |     2 |   107 |       2 |    12 |   121 |
-| home\\view\\up_work      |     2 |   316 |       9 |    26 |   351 |
+若在部署中遇到任何问题，联系我 QQ：2833924820！
